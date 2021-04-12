@@ -12,7 +12,6 @@
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-
 #include <ArduinoJson.h>
 #include "MAX44009.h"
 #include "Adafruit_MCP9808.h"
@@ -29,9 +28,9 @@ SDL_Arduino_INA3221 ina3221;
 #define CHANNEL_1 1
 #define CHANNEL_2 2
 #define CHANNEL_3 3
-
 #define MOSFET 25
 #define v_bat_ok 12.0
+
 bool mosfet_on = false;
 static float v_delta = 0.2;
 
@@ -59,7 +58,7 @@ float bat_vol = 0;
 /*_____________________SETUP_______________________*/
 void setup(){
   Serial.begin(115200);
-  Serial.println("Starting");
+  Serial.printf("\n\nStarting\n");
   Wire.begin();
   pinMode(MOSFET, OUTPUT);
   digitalWrite(MOSFET, LOW);
@@ -89,13 +88,13 @@ void loop(){
     DynamicJsonDocument doc(1024);
     doc["sensor"] = SENSORNAME;
     doc["uptime"] = now_;
-    ina3221reads(doc);
-    readMCP9808(doc);
-    readDS18B20(doc);
-    printMAX44009(doc);
+    read_INA3221(doc);
+    read_MCP9808(doc);
+    read_DS18B20(doc);
+    read_MAX44009(doc);
     ctrl_mosfet(bat_vol); // control mosfet
     doc["expt"] = mosfet_on;
-    pushData(doc);
+    push_Data(doc);
     lastPush = now_;
     
     JsonObject obj = doc.to<JsonObject>(); // empty doc object
@@ -109,14 +108,14 @@ void loop(){
 }
 
 /*_____________________READING SENSORS_______________________*/
-void readDS18B20(DynamicJsonDocument &doc){
+void read_DS18B20(DynamicJsonDocument &doc){
   ds18.requestTemperatures(); 
   float tempC = ds18.getTempCByIndex(0);
   doc["DS18"] = tempC;
   Serial.printf("\nDS18B20 Temperature, *C, %.1f\n", tempC);
 }
 
-void readMCP9808(DynamicJsonDocument &doc){
+void read_MCP9808(DynamicJsonDocument &doc){
   mcp.wake();
   float c = mcp.readTempC();
   doc["MCP9808"] = c;
@@ -125,7 +124,7 @@ void readMCP9808(DynamicJsonDocument &doc){
   Serial.printf("MCP9808 *C: %.1f", c); 
 }
 
-void printMAX44009(DynamicJsonDocument &doc) {
+void read_MAX44009(DynamicJsonDocument &doc) {
     int8_t i = 0;
     float lux = maxlux.GetLux();
     while (lux >=188000L){
@@ -145,16 +144,14 @@ void printMAX44009(DynamicJsonDocument &doc) {
     } else {
       doc["max44099"]["W"] =  maxlux.GetWpm();  
     }
-    
     if (lux <100){
       INVL = 300; // 5 minutes
     } else {
       INVL = 30; // 30 seconds;
     }
-//    doc["INVL"] = INVL;
   }
 
-void ina3221reads(DynamicJsonDocument &doc){
+void read_INA3221(DynamicJsonDocument &doc){
     
   float shuntvoltage1 = 0;
   float busvoltage1 = 0;
@@ -321,7 +318,7 @@ void setup_wifi() {
   Serial.println(WiFi.macAddress());
 }
 /*__________________ PUSH DATA  ___________________*/
-void pushData(DynamicJsonDocument &doc) {
+void push_Data(DynamicJsonDocument &doc) {
     
     size_t len = measureJson(doc)+ 1;
     char payload[len];
