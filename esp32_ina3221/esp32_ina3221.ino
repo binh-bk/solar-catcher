@@ -29,7 +29,7 @@ SDL_Arduino_INA3221 ina3221;
 #define CHANNEL_2 2
 #define CHANNEL_3 3
 #define MOSFET 25
-#define v_bat_ok 12.0
+#define V_BAT_OK 12.0
 
 bool mosfet_on = false;
 static float v_delta = 0.2;
@@ -257,15 +257,15 @@ void ctrl_mosfet(float v_bat){
 //  bat_vol, P MOSFET is closed circuit if VGS is -, 
 // BC337 is a N transitor, closed if VBE is +
   Serial.printf("MOSFET status %d\n", mosfet_on);
-  if ((v_bat > (v_bat_ok - v_delta)) & !mosfet_on){ //if battery voltage is higher and mosfet is off
-    Serial.println("TURNON");
+  if ((v_bat > (V_BAT_OK - v_delta)) & !mosfet_on){ //if battery voltage is higher and mosfet is off
+    Serial.println("TURN MOSTFET ON");
     digitalWrite(MOSFET, HIGH); // pull high 
     mosfet_on = true;   
   }
 
-  if ((v_bat <= (v_bat_ok + v_delta)) & mosfet_on){
+  if ((v_bat <= (V_BAT_OK + v_delta)) & mosfet_on){
     digitalWrite(MOSFET, LOW);
-    Serial.println("TURN OFF");
+    Serial.println("TURN MOSFET OFF");
     mosfet_on = false;
   }
   return;
