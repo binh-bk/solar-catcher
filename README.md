@@ -22,6 +22,6 @@ Measuring solar energy captured from 20Wp solar and measured by TI INA3221 senso
 </p>
   
 # Tutorial on my website
-<a href="https://b-io.info/tutorials/sunlight-catcher/">Building 20Wp solar catcher b-io.info</a>
+<a href="https://www.b-io.info/post/tutorial/sunlight-catcher/">Building 20Wp solar catcher b-io.info</a>
 
 
